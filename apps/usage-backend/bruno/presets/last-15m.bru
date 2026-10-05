@@ -1,0 +1,43 @@
+meta {
+  name: Usage — Last 15m
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/user/actions?timeframe=15m
+  auth: none
+}
+
+tests {
+  test("returns 200 and a plain array of usage records", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body).to.be.an("array");
+    res.body.forEach(function (record) {
+      expect(record).to.have.all.keys("usage_id", "usage", "timestamp");
+      expect(Number.isInteger(record.usage_id)).to.equal(true);
+      expect(Number.isFinite(record.usage)).to.equal(true);
+      expect(record.timestamp).to.match(/Z$/);
+      expect(Number.isFinite(Date.parse(record.timestamp))).to.equal(true);
+    });
+  });
+
+  test("returns records newest first", function () {
+    for (let index = 1; index < res.body.length; index++) {
+      expect(Date.parse(res.body[index - 1].timestamp)).to.be.at.least(Date.parse(res.body[index].timestamp));
+    }
+  });
+
+  test("returns records within the last 15m", function () {
+    const now = Date.now();
+    res.body.forEach(function (record) {
+      const age = now - Date.parse(record.timestamp);
+      expect(age).to.be.at.least(-5000);
+      expect(age).to.be.at.most(900000 + 5000);
+    });
+  });
+}
+
+docs {
+  Allows five seconds for request duration and local clock skew. The backend calculates the exact UTC range.
+}

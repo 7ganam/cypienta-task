@@ -1,0 +1,18 @@
+meta {
+  name: Missing API Key
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/user/info
+  auth: none
+}
+
+tests {
+  test("returns 401 with the JSON error shape", function () {
+    expect(res.status).to.equal(401);
+    expect(res.body).to.have.all.keys("error");
+    expect(res.body.error).to.be.a("string");
+  });
+}

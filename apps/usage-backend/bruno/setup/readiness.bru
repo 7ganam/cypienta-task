@@ -1,0 +1,21 @@
+meta {
+  name: Readiness Check
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_url}}/health/ready
+  auth: none
+}
+
+tests {
+  test("backend and upstream are ready", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body).to.deep.equal({ status: "ready" });
+  });
+}
+
+docs {
+  Requires the backend's upstream mock or real API to be reachable.
+}

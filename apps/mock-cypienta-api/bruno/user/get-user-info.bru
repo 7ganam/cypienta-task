@@ -1,0 +1,29 @@
+meta {
+  name: Get User Info
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/user/info
+  auth: none
+}
+
+headers {
+  X-API-Key: {{api_key}}
+}
+
+tests {
+  test("returns 200", function () {
+    expect(res.status).to.equal(200);
+  });
+
+  test("returns the user info shape", function () {
+    expect(res.body).to.have.all.keys("user_id", "name", "created_at");
+    expect(res.body.user_id).to.be.a("number");
+    expect(Number.isInteger(res.body.user_id)).to.equal(true);
+    expect(res.body.name).to.be.a("string");
+    expect(res.body.created_at).to.be.a("string");
+    expect(res.body.created_at).to.match(/^\d{4}-\d{2}-\d{2}T/);
+  });
+}

@@ -1,0 +1,18 @@
+meta {
+  name: Unknown Endpoint
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{base_url}}/api/does-not-exist
+  auth: none
+}
+
+tests {
+  test("returns 404 with the JSON error shape", function () {
+    expect(res.status).to.equal(404);
+    expect(res.body).to.have.all.keys("error");
+    expect(res.body.error).to.be.a("string");
+  });
+}

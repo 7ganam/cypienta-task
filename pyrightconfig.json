@@ -1,0 +1,10 @@
+{
+  "include": ["apps/usage-backend"],
+  "venvPath": "apps/usage-backend",
+  "venv": ".venv",
+  "executionEnvironments": [
+    {
+      "root": "apps/usage-backend"
+    }
+  ]
+}

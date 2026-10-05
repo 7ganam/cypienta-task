@@ -1,0 +1,10 @@
+.venv
+.env
+.env.*
+__pycache__
+**/__pycache__
+.ruff_cache
+usage.json
+usage.json.tmp
+*.lock
+.DS_Store

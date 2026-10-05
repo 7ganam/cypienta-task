@@ -1,0 +1,20 @@
+meta {
+  name: Health Check
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/health
+  auth: none
+}
+
+tests {
+  test("returns 200 without authentication", function () {
+    expect(res.status).to.equal(200);
+  });
+
+  test("returns the health response", function () {
+    expect(res.body).to.deep.equal({ status: "healthy" });
+  });
+}

@@ -1,0 +1,27 @@
+# Dependencies and generated files in every app.
+node_modules/
+.venv/
+__pycache__/
+*.py[cod]
+.ruff_cache/
+.coverage
+htmlcov/
+*.sqlite3
+.output/
+dist/
+.tanstack/
+test-results/
+playwright-report/
+*.tsbuildinfo
+apps/web/src/routeTree.gen.ts
+
+# Local configuration, mock records, and private challenge inputs.
+.env
+.env.*
+!.env.example
+*-secrets.env
+.vscode/
+apps/mock-cypienta-api/usage.json
+apps/mock-cypienta-api/usage.json.tmp
+task-inputs/
+.DS_Store

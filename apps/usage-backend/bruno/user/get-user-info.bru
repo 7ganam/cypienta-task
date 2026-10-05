@@ -1,0 +1,28 @@
+meta {
+  name: Get User Info
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/user/info
+  auth: none
+}
+
+tests {
+  test("returns 200 and the user info shape", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body).to.have.all.keys("user_id", "name", "created_at");
+    expect(Number.isInteger(res.body.user_id)).to.equal(true);
+    expect(res.body.name).to.be.a("string");
+  });
+
+  test("returns an explicit UTC timestamp", function () {
+    expect(res.body.created_at).to.match(/Z$/);
+    expect(Number.isFinite(Date.parse(res.body.created_at))).to.equal(true);
+  });
+}
+
+docs {
+  No X-API-Key is needed here. The Django backend attaches its configured upstream key.
+}

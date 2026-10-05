@@ -1,0 +1,50 @@
+meta {
+  name: Get Usage History
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_url}}/api/user/actions
+  auth: none
+}
+
+headers {
+  X-API-Key: {{api_key}}
+}
+
+tests {
+  function utcTime(value) {
+    return Date.parse(/(?:Z|[+-]\d{2}:\d{2})$/.test(value) ? value : value + "Z");
+  }
+
+  test("returns 200 and a plain array of usage records", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body).to.be.an("array");
+    res.body.forEach(function (record) {
+      expect(record).to.have.all.keys("usage_id", "usage", "timestamp");
+      expect(Number.isInteger(record.usage_id)).to.equal(true);
+      expect(record.usage).to.be.a("number");
+      expect(record.timestamp).to.be.a("string");
+      expect(Number.isFinite(utcTime(record.timestamp))).to.equal(true);
+    });
+  });
+
+  test("returns records newest first", function () {
+    for (let index = 1; index < res.body.length; index++) {
+      expect(utcTime(res.body[index - 1].timestamp)).to.be.at.least(utcTime(res.body[index].timestamp));
+    }
+  });
+
+  test("includes the record created earlier in this run", function () {
+    const identifier = bru.getVar("created_usage_id");
+    if (identifier !== undefined && identifier !== null) {
+      const record = res.body.find(function (item) { return item.usage_id === identifier; });
+      expect(record).to.deep.equal({
+        usage_id: identifier,
+        usage: bru.getVar("created_usage"),
+        timestamp: bru.getVar("created_usage_timestamp")
+      });
+    }
+  });
+}

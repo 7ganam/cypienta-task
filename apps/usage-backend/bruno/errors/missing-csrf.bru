@@ -1,0 +1,33 @@
+meta {
+  name: Missing CSRF Token
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/api/user/actions
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "usage": 42.7
+  }
+}
+
+tests {
+  test("returns 403 with the JSON error shape", function () {
+    expect(res.status).to.equal(403);
+    expect(res.body).to.have.all.keys("error");
+    expect(res.body.error).to.be.a("string");
+  });
+}
+
+docs {
+  Intentionally omits X-CSRFToken. No record should be created.
+}

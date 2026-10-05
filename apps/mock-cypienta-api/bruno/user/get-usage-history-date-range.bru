@@ -1,0 +1,60 @@
+meta {
+  name: Get Usage History (Date Range)
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_url}}/api/user/actions?start_date={{start_date}}&end_date={{end_date}}
+  auth: none
+}
+
+params:query {
+  start_date: {{start_date}}
+  end_date: {{end_date}}
+}
+
+headers {
+  X-API-Key: {{api_key}}
+}
+
+tests {
+  function utcTime(value) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return Date.parse(value + "T00:00:00Z");
+    }
+    return Date.parse(/(?:Z|[+-]\d{2}:\d{2})$/.test(value) ? value : value + "Z");
+  }
+
+  test("returns 200 and a plain array", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body).to.be.an("array");
+  });
+
+  test("returns only records in the requested UTC range", function () {
+    const start = utcTime(bru.getEnvVar("start_date"));
+    const end = utcTime(bru.getEnvVar("end_date"));
+    expect(Number.isFinite(start) && Number.isFinite(end)).to.equal(true);
+    res.body.forEach(function (record) {
+      expect(utcTime(record.timestamp)).to.be.at.least(start);
+      expect(utcTime(record.timestamp)).to.be.at.most(end);
+    });
+  });
+
+  test("includes the newly created record when it is within the range", function () {
+    const identifier = bru.getVar("created_usage_id");
+    if (identifier !== undefined && identifier !== null) {
+      const timestamp = utcTime(bru.getVar("created_usage_timestamp"));
+      const start = utcTime(bru.getEnvVar("start_date"));
+      const end = utcTime(bru.getEnvVar("end_date"));
+      if (timestamp >= start && timestamp <= end) {
+        expect(res.body.some(function (record) { return record.usage_id === identifier; })).to.equal(true);
+      }
+    }
+  });
+}
+
+docs {
+  Edit start_date and end_date in the selected environment to test a custom range.
+  The defaults cover 2000 to 2100. Dates and datetimes are interpreted as UTC.
+}

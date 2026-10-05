@@ -1,0 +1,50 @@
+meta {
+  name: Add Usage Record
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/api/user/actions
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  X-CSRFToken: {{csrf_token}}
+  Cookie: csrftoken={{csrf_cookie}}
+}
+
+body:json {
+  {
+    "usage": {{usage}}
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    bru.setVar("created_usage_id", res.body.usage_id);
+    bru.setVar("created_usage", res.body.usage);
+    bru.setVar("created_usage_timestamp", res.body.timestamp);
+  }
+}
+
+tests {
+  test("returns 201 and the usage record shape", function () {
+    expect(res.status).to.equal(201);
+    expect(res.body).to.have.all.keys("usage_id", "usage", "timestamp");
+    expect(Number.isInteger(res.body.usage_id)).to.equal(true);
+    expect(res.body.usage_id).to.be.greaterThan(0);
+    expect(res.body.timestamp).to.match(/Z$/);
+    expect(Number.isFinite(Date.parse(res.body.timestamp))).to.equal(true);
+  });
+
+  test("records the configured usage value", function () {
+    expect(res.body.usage).to.equal(Number(bru.getEnvVar("usage")));
+  });
+}
+
+docs {
+  Run Get CSRF Token first. Creates a persistent upstream record. Change usage in the local environment.
+}

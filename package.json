@@ -1,0 +1,30 @@
+{
+  "name": "cypienta-task",
+  "private": true,
+  "packageManager": "pnpm@10.4.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "setup": "sh apps/usage-backend/run.sh --setup && sh apps/mock-cypienta-api/run.sh --setup",
+    "dev": "concurrently --kill-others --names mock-cypienta-api,usage-backend,web \"pnpm dev:mock-cypienta-api\" \"pnpm dev:usage-backend\" \"pnpm dev:web\"",
+    "dev:down": "sh scripts/dev-down.sh",
+    "dev:web": "pnpm --filter ./apps/web dev",
+    "dev:usage-backend": "sh apps/usage-backend/run.sh",
+    "dev:mock-cypienta-api": "sh apps/mock-cypienta-api/run.sh",
+    "build": "pnpm --filter ./apps/web build",
+    "start": "pnpm --filter ./apps/web start",
+    "typecheck": "pnpm --filter ./apps/web typecheck",
+    "lint": "pnpm lint:usage-backend && pnpm lint:web",
+    "lint:usage-backend": "cd apps/usage-backend && .venv/bin/python -m ruff check . && .venv/bin/python -m ruff format --check .",
+    "lint:web": "pnpm --filter ./apps/web exec prettier --check .",
+    "test": "pnpm test:usage-backend && pnpm test:mock-cypienta-api && pnpm test:web",
+    "test:usage-backend": "cd apps/usage-backend && .venv/bin/python manage.py check --settings=config.settings.test && .venv/bin/python manage.py test --settings=config.settings.test",
+    "test:mock-cypienta-api": "cd apps/mock-cypienta-api && .venv/bin/python manage.py test",
+    "test:web": "pnpm --filter ./apps/web test",
+    "test:e2e": "pnpm --filter ./apps/web test:e2e"
+  },
+  "devDependencies": {
+    "concurrently": "10.0.5"
+  }
+}

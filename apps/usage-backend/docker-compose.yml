@@ -1,0 +1,25 @@
+name: usage-backend
+
+services:
+  usage-backend:
+    image: usage-backend:local
+    build: .
+    ports:
+      - "127.0.0.1:41873:8000"
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.production
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,[::1]}
+      DJANGO_HTTPS: "false"
+      DJANGO_LOCAL_DEMO: "true"
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-}
+      API_URL: ${API_URL:-}
+      API_KEY: ${API_KEY:-}
+      API_TIMEOUT_SECONDS: ${API_TIMEOUT_SECONDS:-10}
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped

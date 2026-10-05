@@ -1,0 +1,49 @@
+meta {
+  name: Get Usage History (Date Range)
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{base_url}}/api/user/actions?start_date={{start_date}}&end_date={{end_date}}
+  auth: none
+}
+
+tests {
+  test("returns 200 and a plain array of usage records", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body).to.be.an("array");
+    res.body.forEach(function (record) {
+      expect(record).to.have.all.keys("usage_id", "usage", "timestamp");
+      expect(Number.isInteger(record.usage_id)).to.equal(true);
+      expect(Number.isFinite(record.usage)).to.equal(true);
+      expect(record.timestamp).to.match(/Z$/);
+      expect(Number.isFinite(Date.parse(record.timestamp))).to.equal(true);
+    });
+  });
+
+  test("returns records newest first", function () {
+    for (let index = 1; index < res.body.length; index++) {
+      expect(Date.parse(res.body[index - 1].timestamp)).to.be.at.least(Date.parse(res.body[index].timestamp));
+    }
+  });
+
+  function utcTime(value) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return Date.parse(value + "T00:00:00Z");
+    return Date.parse(/(?:Z|[+-]\d{2}:\d{2})$/.test(value) ? value : value + "Z");
+  }
+
+  test("returns only records within inclusive custom bounds", function () {
+    const start = utcTime(bru.getEnvVar("start_date"));
+    const end = utcTime(bru.getEnvVar("end_date"));
+    expect(Number.isFinite(start) && Number.isFinite(end)).to.equal(true);
+    res.body.forEach(function (record) {
+      expect(Date.parse(record.timestamp)).to.be.at.least(start);
+      expect(Date.parse(record.timestamp)).to.be.at.most(end);
+    });
+  });
+}
+
+docs {
+  Edit start_date and end_date in the local environment. Defaults cover 2000–2100. Date-only bounds mean UTC midnight, including end_date.
+}

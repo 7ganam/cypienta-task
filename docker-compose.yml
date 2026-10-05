@@ -1,0 +1,60 @@
+name: cypienta-dashboard
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      BACKEND_URL: http://usage-backend:8000
+    depends_on:
+      usage-backend:
+        condition: service_healthy
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+  usage-backend:
+    image: usage-backend:local
+    build: ./apps/usage-backend
+    ports:
+      - "127.0.0.1:41873:8000"
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.production
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,[::1],usage-backend
+      DJANGO_HTTPS: "false"
+      DJANGO_LOCAL_DEMO: "true"
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-}
+      API_URL: ${API_URL:-http://mock-cypienta-api:40759}
+      API_KEY: ${API_KEY:-local-dev-key}
+      API_TIMEOUT_SECONDS: ${API_TIMEOUT_SECONDS:-10}
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+  mock-cypienta-api:
+    build: ./apps/mock-cypienta-api
+    ports:
+      - "127.0.0.1:40759:40759"
+    environment:
+      MOCK_API_KEY: ${API_KEY:-local-dev-key}
+    volumes:
+      - mock-data:/data
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+volumes:
+  mock-data:

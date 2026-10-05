@@ -1,0 +1,39 @@
+meta {
+  name: Get CSRF Token
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_url}}/api/csrf
+  body: none
+  auth: none
+}
+
+script:post-response {
+  if (res.status === 200) {
+    bru.setVar("csrf_token", res.body.csrfToken);
+    const header = res.headers["set-cookie"] || [];
+    const cookies = Array.isArray(header) ? header : [header];
+    const cookie = cookies.find(function (value) { return value.startsWith("csrftoken="); });
+    if (!cookie) throw new Error("Backend did not return a CSRF cookie");
+    bru.setVar("csrf_cookie", cookie.split(";")[0].slice("csrftoken=".length));
+  }
+}
+
+tests {
+  test("returns the CSRF token", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body).to.have.all.keys("csrfToken");
+    expect(res.body.csrfToken).to.match(/^[A-Za-z0-9]{64}$/);
+  });
+
+  test("stores token and cookie for subsequent POST requests", function () {
+    expect(bru.getVar("csrf_token")).to.equal(res.body.csrfToken);
+    expect(bru.getVar("csrf_cookie")).to.match(/^[A-Za-z0-9]{32}$/);
+  });
+}
+
+docs {
+  Run this request first when sending POST requests individually. The token and cookie are runtime variables; they are not saved in the environment file.
+}

@@ -1,0 +1,35 @@
+meta {
+  name: Out-of-range Usage
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/api/user/actions
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  X-CSRFToken: {{csrf_token}}
+  Cookie: csrftoken={{csrf_cookie}}
+}
+
+body:json {
+  {
+    "usage": 101
+  }
+}
+
+tests {
+  test("returns 400 with the JSON error shape", function () {
+    expect(res.status).to.equal(400);
+    expect(res.body).to.have.all.keys("error");
+    expect(res.body.error).to.be.a("string");
+  });
+}
+
+docs {
+  Run Get CSRF Token first. Usage must be between 0 and 100.
+}

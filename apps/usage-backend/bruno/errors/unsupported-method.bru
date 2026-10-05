@@ -1,0 +1,37 @@
+meta {
+  name: Unsupported Method
+  type: http
+  seq: 7
+}
+
+put {
+  url: {{base_url}}/api/user/actions
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  X-CSRFToken: {{csrf_token}}
+  Cookie: csrftoken={{csrf_cookie}}
+}
+
+body:json {
+  {}
+}
+
+tests {
+  test("returns 405 with the JSON error shape", function () {
+    expect(res.status).to.equal(405);
+    expect(res.body).to.have.all.keys("error");
+    expect(res.body.error).to.be.a("string");
+  });
+
+  test("returns the supported methods", function () {
+    expect(res.headers.allow).to.equal("GET, POST");
+  });
+}
+
+docs {
+  Run Get CSRF Token first. A valid token allows the method check to return 405 rather than an earlier CSRF 403.
+}

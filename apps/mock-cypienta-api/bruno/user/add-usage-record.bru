@@ -1,0 +1,49 @@
+meta {
+  name: Add Usage Record
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/api/user/actions
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  X-API-Key: {{api_key}}
+}
+
+body:json {
+  {
+    "usage": {{usage}}
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    bru.setVar("created_usage_id", res.body.usage_id);
+    bru.setVar("created_usage", res.body.usage);
+    bru.setVar("created_usage_timestamp", res.body.timestamp);
+  }
+}
+
+tests {
+  test("returns 201", function () {
+    expect(res.status).to.equal(201);
+  });
+
+  test("returns the created usage record", function () {
+    expect(res.body).to.have.all.keys("usage_id", "usage", "timestamp");
+    expect(Number.isInteger(res.body.usage_id)).to.equal(true);
+    expect(res.body.usage_id).to.be.greaterThan(0);
+    expect(res.body.usage).to.equal(Number(bru.getEnvVar("usage")));
+    expect(res.body.timestamp).to.be.a("string");
+    expect(res.body.timestamp).to.match(/^\d{4}-\d{2}-\d{2}T/);
+  });
+}
+
+docs {
+  Adds one persistent record to usage.json. Change usage in the selected environment.
+}

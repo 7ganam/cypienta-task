@@ -1,0 +1,170 @@
+{
+  "info": {
+    "_postman_id": "user-collection-001",
+    "name": "Cypienta Interview API - User",
+    "description": "Postman collection for User endpoints. Requires a user API key (obtained when creating a user via admin endpoint).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "health"
+          ]
+        },
+        "description": "Check if the API is running. No authentication required."
+      },
+      "response": []
+    },
+    {
+      "name": "Get User Info",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{user_api_key}}",
+            "description": "User API key"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/user/info",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "user",
+            "info"
+          ]
+        },
+        "description": "Get information about the authenticated user."
+      },
+      "response": []
+    },
+    {
+      "name": "Add Usage Record",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{user_api_key}}",
+            "description": "User API key"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"usage\": 15.5\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/user/actions",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "user",
+            "actions"
+          ]
+        },
+        "description": "Record a usage value for the authenticated user."
+      },
+      "response": []
+    },
+    {
+      "name": "Get Usage History",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{user_api_key}}",
+            "description": "User API key"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/user/actions",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "user",
+            "actions"
+          ]
+        },
+        "description": "Get all usage records for the authenticated user."
+      },
+      "response": []
+    },
+    {
+      "name": "Get Usage History (Date Range)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{user_api_key}}",
+            "description": "User API key"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/user/actions?start_date=2024-01-01&end_date=2024-12-31",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "user",
+            "actions"
+          ],
+          "query": [
+            {
+              "key": "start_date",
+              "value": "2024-01-01",
+              "description": "Start date (YYYY-MM-DD or ISO format)"
+            },
+            {
+              "key": "end_date",
+              "value": "2024-12-31",
+              "description": "End date (YYYY-MM-DD or ISO format)"
+            }
+          ]
+        },
+        "description": "Get usage records for the authenticated user within a date range."
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:40759",
+      "type": "string"
+    },
+    {
+      "key": "user_api_key",
+      "value": "local-dev-key",
+      "type": "string",
+      "description": "Pre-configured user API key for this candidate"
+    }
+  ]
+}
